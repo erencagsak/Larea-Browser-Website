@@ -5,13 +5,13 @@
   <title>Larea Browser</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <link rel="icon" type="image/png" href="logo.png" />
-  <link rel="shortcut icon" href="logo.png" type="image/x-icon" />
+  <link rel="icon" type="image/png" href="logo.png?v=2" />
+  <link rel="shortcut icon" href="logo.png?v=2" type="image/x-icon" />
+  <link rel="apple-touch-icon" href="logo.png?v=2" />
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;800&family=Material+Symbols+Outlined" rel="stylesheet" />
 
   <style>
-    /* --- CSS AYNI KALIYOR --- */
     body {
       margin: 0;
       background: radial-gradient(circle at top, #1a1a2e, #050510);
@@ -303,7 +303,6 @@
       color: #666;
     }
 
-    /* FORM ALANI */
     .form-group {
       margin-bottom: 20px;
       text-align: left;
@@ -386,6 +385,8 @@
   </div>
 
   <nav class="nav-bar">
+    <img src="logo.png" alt="Larea Logo" style="height: 40px; width: auto; margin-right: 10px;">
+    
     <button class="nav-btn active" onclick="showPage('home')">Home</button>
     <button class="nav-btn" onclick="showPage('feedback')">Feedback</button>
   </nav>
