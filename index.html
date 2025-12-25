@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <link rel="icon" type="image/png" href="logo.png" />
+  <link rel="shortcut icon" href="logo.png" type="image/x-icon" />
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;800&family=Material+Symbols+Outlined" rel="stylesheet" />
 
@@ -174,14 +175,21 @@
       color: #7878ff;
     }
 
-    .gallery-container {
+    /* --- GÜNCELLENEN GALERİ STİLLERİ --- */
+    .gallery-wrapper {
+      position: relative;
       width: 100%;
       margin: 30px 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .gallery-container {
+      width: 100%;
       overflow: hidden;
       border-radius: 12px;
       border: 1px solid rgba(255, 255, 255, 0.1);
       background: rgba(0, 0, 0, 0.2);
-      position: relative;
     }
 
     .gallery-track {
@@ -205,12 +213,65 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.3);
       transition: transform 0.3s ease;
       flex-shrink: 0;
-      cursor: pointer;
+      cursor: zoom-in; /* Büyütülebilir imleci */
     }
 
     .gallery-img:hover {
       transform: scale(1.02);
+      border: 1px solid rgba(255,255,255,0.3);
     }
+
+    /* Kaydırma Butonları */
+    .scroll-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: white;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: absolute;
+      z-index: 10;
+      transition: all 0.3s;
+      backdrop-filter: blur(5px);
+    }
+
+    .scroll-btn:hover {
+      background: #4facfe;
+      transform: scale(1.1);
+    }
+
+    .scroll-left { left: -20px; }
+    .scroll-right { right: -20px; }
+
+    /* Lightbox (Büyük Resim) Stilleri */
+    .lightbox {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 9999;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      cursor: zoom-out;
+      animation: fadeIn 0.3s;
+    }
+
+    .lightbox img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 12px;
+      box-shadow: 0 0 50px rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* --- END GALERİ STİLLERİ --- */
 
     .download-btn {
       display: inline-flex;
@@ -320,6 +381,10 @@
 
   <div class="glow"></div>
 
+  <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+    <img id="lightboxImg" src="" alt="Full Screen Preview">
+  </div>
+
   <nav class="nav-bar">
     <button class="nav-btn active" onclick="showPage('home')">Home</button>
     <button class="nav-btn" onclick="showPage('feedback')">Feedback</button>
@@ -354,16 +419,26 @@
         </div>
       </div>
 
-      <div class="gallery-container">
-        <div class="gallery-track" id="galleryTrack">
-          <img src="picture_1.png" alt="Screenshot 1" class="gallery-img">
-          <img src="picture_2.png" alt="Screenshot 2" class="gallery-img">
-          <img src="picture_3.png" alt="Screenshot 3" class="gallery-img">
-          <img src="picture_4.png" alt="Screenshot 4" class="gallery-img">
+      <div class="gallery-wrapper">
+        <button class="scroll-btn scroll-left" onclick="scrollGallery(-1)">
+          <span class="material-symbols-outlined">chevron_left</span>
+        </button>
+        
+        <div class="gallery-container">
+          <div class="gallery-track" id="galleryTrack">
+            <img src="picture_1.png" alt="Screenshot 1" class="gallery-img" onclick="openLightbox(this.src)">
+            <img src="picture_2.png" alt="Screenshot 2" class="gallery-img" onclick="openLightbox(this.src)">
+            <img src="picture_3.png" alt="Screenshot 3" class="gallery-img" onclick="openLightbox(this.src)">
+            <img src="picture_4.png" alt="Screenshot 4" class="gallery-img" onclick="openLightbox(this.src)">
+          </div>
         </div>
+
+        <button class="scroll-btn scroll-right" onclick="scrollGallery(1)">
+          <span class="material-symbols-outlined">chevron_right</span>
+        </button>
       </div>
 
-      <a id="downloadBtn" href="https://github.com/erencagsak/Larea-Browser/releases/latest" class="download-btn">
+      <a id="downloadBtn" href="#" class="download-btn">
         <span class="material-symbols-outlined">download</span>
         <span id="btnText">LOADING...</span>
       </a>
@@ -418,27 +493,40 @@
 
   <div class="footer">© 2025 Larea Browser Project</div>
 
-<script>
+  <script>
+    // --- GALERİ FONKSİYONLARI ---
     const track = document.getElementById('galleryTrack');
-    
-    setTimeout(() => {
-        if(track) {
-            track.scrollLeft = 100;
-        }
-    }, 1000);
+
+    function scrollGallery(direction) {
+      // 300 piksel sağa veya sola kaydırır
+      track.scrollBy({ left: direction * 300, behavior: 'smooth' });
+    }
+
+    function openLightbox(src) {
+      const lightbox = document.getElementById('lightbox');
+      const img = document.getElementById('lightboxImg');
+      img.src = src;
+      lightbox.style.display = 'flex';
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').style.display = 'none';
+    }
 
     async function fetchLatestRelease() {
         const user = 'erencagsak';
         const repo = 'Larea-Browser';
+        const targetTag = 'v0.0.3';
+        const fallbackFileName = 'Larea-Browser-Setup.exe';
+
         const btn = document.getElementById('downloadBtn');
         const btnText = document.getElementById('btnText');
         const verText = document.getElementById('versionText');
-        const fallbackFileName = "Larea-Browser-Setup.exe"; 
 
         try {
-            const response = await fetch(`https://api.github.com/repos/${user}/${repo}/releases/latest`);
+            const response = await fetch(`https://api.github.com/repos/${user}/${repo}/releases/tags/${targetTag}`);
             
-            if (!response.ok) throw new Error('API Error');
+            if (!response.ok) throw new Error('Release not found');
 
             const data = await response.json();
             const asset = data.assets.find(a => a.name.endsWith('.exe'));
@@ -448,16 +536,16 @@
                 btnText.innerText = "DOWNLOAD";
                 verText.innerText = `Version ${data.tag_name} • For Windows`;
             } else {
-                throw new Error('Exe not found');
+                throw new Error('Exe not found in release');
             }
 
         } catch (error) {
-            console.log("API limit reached or error, switching to direct fallback.");
-            
-            btn.href = `https://github.com/${user}/${repo}/releases/latest/download/${fallbackFileName}`;
+            console.log("API Error or Limit:", error);
+          
+            btn.href = `https://github.com/${user}/${repo}/releases/download/${targetTag}/${fallbackFileName}`;
             
             btnText.innerText = "DOWNLOAD";
-            verText.innerText = "Ready for Windows 10/11";
+            verText.innerText = `Version ${targetTag} • Windows 10/11`;
         }
     }
 
