@@ -494,11 +494,13 @@
   <div class="footer">© 2025 Larea Browser Project</div>
 
   <script>
-    // --- GALERİ FONKSİYONLARI ---
     const track = document.getElementById('galleryTrack');
 
+    setTimeout(() => {
+        if(track) track.scrollLeft = 0;
+    }, 100);
+
     function scrollGallery(direction) {
-      // 300 piksel sağa veya sola kaydırır
       track.scrollBy({ left: direction * 300, behavior: 'smooth' });
     }
 
@@ -512,40 +514,40 @@
     function closeLightbox() {
       document.getElementById('lightbox').style.display = 'none';
     }
-
+    
     async function fetchLatestRelease() {
         const user = 'erencagsak';
         const repo = 'Larea-Browser';
-        const targetTag = 'v0.0.3';
-        const fallbackFileName = 'Larea-Browser-Setup.exe';
-
+        
         const btn = document.getElementById('downloadBtn');
         const btnText = document.getElementById('btnText');
         const verText = document.getElementById('versionText');
 
+        btnText.innerText = "LOADING...";
+
         try {
-            const response = await fetch(`https://api.github.com/repos/${user}/${repo}/releases/tags/${targetTag}`);
+            const response = await fetch(`https://api.github.com/repos/${user}/${repo}/releases/latest`);
             
-            if (!response.ok) throw new Error('Release not found');
+            if (!response.ok) throw new Error('API Error');
 
             const data = await response.json();
+            
             const asset = data.assets.find(a => a.name.endsWith('.exe'));
 
             if (asset) {
                 btn.href = asset.browser_download_url;
-                btnText.innerText = "DOWNLOAD";
-                verText.innerText = `Version ${data.tag_name} • For Windows`;
+                btnText.innerText = "DOWNLOAD FOR WINDOWS";
+                verText.innerText = `Version: ${data.tag_name}`;
             } else {
-                throw new Error('Exe not found in release');
+                throw new Error('Exe not found');
             }
 
         } catch (error) {
-            console.log("API Error or Limit:", error);
-          
-            btn.href = `https://github.com/${user}/${repo}/releases/download/${targetTag}/${fallbackFileName}`;
+            console.log("Otomatik indirme linki alınamadı, güvenli sayfaya yönlendiriliyor.");
             
-            btnText.innerText = "DOWNLOAD";
-            verText.innerText = `Version ${targetTag} • Windows 10/11`;
+            btn.href = `https://github.com/${user}/${repo}/releases/latest`;
+            btnText.innerText = "GO TO DOWNLOAD PAGE";
+            verText.innerText = "Direct download unavailable, redirecting to GitHub.";
         }
     }
 
@@ -567,32 +569,34 @@
     const form = document.getElementById('feedbackForm');
     const successMsg = document.getElementById('successMessage');
 
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const submitBtn = form.querySelector('button[type="submit"]');
-      const originalText = submitBtn.innerText;
-      submitBtn.innerText = "Sending...";
-      submitBtn.disabled = true;
-      submitBtn.style.opacity = "0.7";
+    if(form) {
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const submitBtn = form.querySelector('button[type="submit"]');
+          const originalText = submitBtn.innerText;
+          submitBtn.innerText = "Sending...";
+          submitBtn.disabled = true;
+          submitBtn.style.opacity = "0.7";
 
-      const formData = new FormData(form);
+          const formData = new FormData(form);
 
-      fetch(form.action, { method: 'POST', body: formData })
-      .then(response => {
-        if(response.ok) {
-          form.style.display = 'none';
-          successMsg.style.display = 'flex';
-        } else {
-          alert("Error sending message. Please try again.");
-        }
-      })
-      .catch(error => { alert("Connection error. Please check your internet."); })
-      .finally(() => {
-        submitBtn.innerText = originalText;
-        submitBtn.disabled = false;
-        submitBtn.style.opacity = "1";
-      });
-    });
+          fetch(form.action, { method: 'POST', body: formData })
+          .then(response => {
+            if(response.ok) {
+              form.style.display = 'none';
+              successMsg.style.display = 'flex';
+            } else {
+              alert("Error sending message.");
+            }
+          })
+          .catch(error => { alert("Connection error."); })
+          .finally(() => {
+            submitBtn.innerText = originalText;
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = "1";
+          });
+        });
+    }
 
     function resetForm() {
       form.reset();
